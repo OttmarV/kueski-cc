@@ -1,7 +1,11 @@
 # kueski-cc
+    > **Important**
+    > For the purpose of this project, I explored the posibility of executing the final script through a tool, in this case, Databricks was the chosen one through the Community Edition. 
+    > Everyone with an account and following below instructions, should be able to successfully execute and see the final results in a Databricks notebook.
+    
 You can find the script named as kuesi-cc.py
 
-To execute this script through Databricks:
+## To execute this script through Databricks:
 
 1. Create an account for Databricks Community Edition.
 
@@ -13,21 +17,22 @@ To execute this script through Databricks:
 
 5. Execute the following commands, one per cell:
 
-import kagglehub
-# Download latest version of dataset
-path = kagglehub.dataset_download("ehallmar/daily-historical-stock-prices-1970-2018")
-print("Path to dataset files:", path)
+    ```console:
+    import kagglehub
+    # Download latest version of dataset
+    path = kagglehub.dataset_download("ehallmar/daily-historical-stock-prices-1970-2018")
+    print("Path to dataset files:", path)
 
+    # Verified the dataset was downloaded correctly
+    !ls -la /root/.cache/kagglehub/datasets/ehallmar/daily-historical-stock-prices-1970-2018/versions/1/historical_stock_prices.csv
+    
+    # Move file to DBFS in databricks
+    dbutils.fs.mv("file:/root/.cache/kagglehub/datasets/ehallmar/daily-historical-stock-prices-1970-2018/versions/1/historical_stock_prices.csv", "dbfs:/FileStore/tables/historical_stock_prices.csv")
 
-# Verified the dataset was downloaded correctly
-!ls -la /root/.cache/kagglehub/datasets/ehallmar/daily-historical-stock-prices-1970-2018/versions/1/historical_stock_prices.csv
+    # Validate the csv file was moved successfully using dbutils
+    dbutils.fs.ls("dbfs:/FileStore/tables/historical_stock_prices.csv")
 
-
-# Move file to DBFS in databricks
-dbutils.fs.mv("file:/root/.cache/kagglehub/datasets/ehallmar/daily-historical-stock-prices-1970-2018/versions/1/historical_stock_prices.csv", "dbfs:/FileStore/tables/historical_stock_prices.csv")
-
-# Validate the csv file was moved successfully using dbutils
-dbutils.fs.ls("dbfs:/FileStore/tables/historical_stock_prices.csv")
+    ```
 
 6. Now you can copy and paste the kueski-cc.py script into a single cell, uncomment the df.show(10) command so you are able to see the results displayed and finally, execute the cell. 
 
