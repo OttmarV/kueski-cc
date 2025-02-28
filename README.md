@@ -1,2 +1,2 @@
 # kueski-cc
-Kueski take home challenge
+You can find the script named as kuesi-cc.py
