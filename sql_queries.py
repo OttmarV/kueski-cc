@@ -12,6 +12,18 @@ formatting_filtering_query = """
     """
 
 moving_average_query = """
+WITH ranked_data AS (
+    SELECT 
+        stock,
+        date,
+        open,
+        close,
+        adj_close,
+        low,
+        high,
+        ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) as rn
+    FROM temp_moving_average
+)
 SELECT 
     stock,
     date,
@@ -20,8 +32,7 @@ SELECT
     adj_close,
     low,
     high,
-    CASE 
-        WHEN ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) >= 7 
+    CASE WHEN rn >= 7 
         THEN ROUND(AVG(open) OVER (
             PARTITION BY stock 
             ORDER BY date 
@@ -29,8 +40,7 @@ SELECT
         ), 4)
         ELSE NULL 
     END AS open_moving_avg_7_day,
-    CASE 
-        WHEN ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) >= 7 
+    CASE WHEN rn >= 7 
         THEN ROUND(AVG(close) OVER (
             PARTITION BY stock 
             ORDER BY date 
@@ -38,8 +48,7 @@ SELECT
         ), 4)
         ELSE NULL 
     END AS close_moving_avg_7_day,
-    CASE 
-        WHEN ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) >= 7 
+    CASE WHEN rn >= 7 
         THEN ROUND(AVG(adj_close) OVER (
             PARTITION BY stock 
             ORDER BY date 
@@ -47,8 +56,7 @@ SELECT
         ), 4)
         ELSE NULL 
     END AS adj_close_moving_avg_7_day,
-    CASE 
-        WHEN ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) >= 7 
+    CASE WHEN rn >= 7 
         THEN ROUND(AVG(low) OVER (
             PARTITION BY stock 
             ORDER BY date 
@@ -56,8 +64,7 @@ SELECT
         ), 4)
         ELSE NULL 
     END AS low_moving_avg_7_day,
-    CASE 
-        WHEN ROW_NUMBER() OVER (PARTITION BY stock ORDER BY date) >= 7 
+    CASE WHEN rn >= 7 
         THEN ROUND(AVG(high) OVER (
             PARTITION BY stock 
             ORDER BY date 
@@ -65,5 +72,5 @@ SELECT
         ), 4)
         ELSE NULL 
     END AS high_moving_avg_7_day
-FROM temp_moving_average;
+FROM ranked_data;
 """
