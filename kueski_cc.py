@@ -59,7 +59,11 @@ def calculate_moving_average(df, columns, days=MV_AVG_DAYS, decimals=NUM_DECIMAL
     logger.info("Starting moving average calculation for columns: %s", columns)
     logger.info("Window size: %s days, Decimal precision: %s", days, decimals)
 
+    logger.info("Precomputing row numbers")
     window_spec = Window.partitionBy("stock").orderBy(F.col("date"))
+    df = df.withColumn("row_num", F.row_number().over(window_spec))
+
+    # Creating start day to for moving average, which start from -6
     mv_avg_start = (days * -1) + 1
 
     for column in columns:
@@ -70,7 +74,7 @@ def calculate_moving_average(df, columns, days=MV_AVG_DAYS, decimals=NUM_DECIMAL
         df = df.withColumn(
             mv_avg_col,
             F.when(
-                F.row_number().over(window_spec) >= days,
+                F.col("row_num") >= days,
                 F.round(
                     F.avg(column).over(window_spec.rowsBetween(mv_avg_start, 0)),
                     decimals,
